@@ -17,7 +17,8 @@ import PrimaryButton from '../components/PrimaryButton';
 import { Colors } from '../constants/Colors';
 import { SignUpNameScreenProps } from '../navigation/types';
 
-const SignUpNameScreen: React.FC<SignUpNameScreenProps> = ({ navigation }) => {
+const SignUpNameScreen: React.FC<SignUpNameScreenProps> = ({ navigation, route }) => {
+    const { userEmail, userPassword } = route.params;
     const [name, setName] = useState('');
     const [imageUri, setImageUri] = useState<string | null>(null);
     const [isSignUpSuccessful, setSignUpSuccessful] = useState(false);
@@ -41,10 +42,37 @@ const SignUpNameScreen: React.FC<SignUpNameScreenProps> = ({ navigation }) => {
         }
     };
 
-    const handleSignUp = () => {
-        // TODO: Implement actual sign-up logic (API call)
-        console.log('Signing up with:', { name, imageUri });
-        setSignUpSuccessful(true);
+    const handleSignUp = async () => {
+        // TODO: Implement actual image upload to get a URL.
+        // For now, sending a placeholder or the local URI.
+        const profileImgUrl = imageUri || 'default_profile_image_url';
+
+        try {
+            const response = await fetch('http://34.219.249.84:3000/ItDa/api/v1/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userEmail,
+                    userPassword,
+                    userName: name,
+                    profileImgUrl,
+                }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Sign up successful:', data);
+                setSignUpSuccessful(true);
+            } else {
+                const errorData = await response.json();
+                Alert.alert('Sign Up Failed', errorData.message || 'Could not create account.');
+            }
+        } catch (error) {
+            console.error(error);
+            Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+        }
     };
 
     const goToLogin = () => {

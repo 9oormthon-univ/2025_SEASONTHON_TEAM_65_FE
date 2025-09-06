@@ -34,6 +34,11 @@ const SignUpIdScreen: React.FC<SignUpIdScreenProps> = ({ navigation }) => {
         setModalVisible(false);
     };
 
+    const handleNextPress = () => {
+        const userEmail = `${localPart}@${finalDomain}`;
+        navigation.navigate('SignUpPassword', { userEmail });
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <KeyboardAvoidingView
@@ -68,7 +73,7 @@ const SignUpIdScreen: React.FC<SignUpIdScreenProps> = ({ navigation }) => {
                 <View style={styles.bottom}>
                     <PrimaryButton
                         title="다음"
-                        onPress={() => navigation.navigate('SignUpPassword')}
+                        onPress={handleNextPress}
                         disabled={isButtonDisabled}
                     />
                 </View>
