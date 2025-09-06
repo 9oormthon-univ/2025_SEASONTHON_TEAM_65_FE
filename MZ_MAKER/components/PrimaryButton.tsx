@@ -1,21 +1,23 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, ViewStyle, TextStyle } from 'react-native';
 import { Colors } from '../constants/Colors';
 
 interface PrimaryButtonProps {
   title: string;
   onPress: () => void;
   disabled?: boolean; // ?는 optional prop을 의미
+  style?: ViewStyle;
+  textStyle?: TextStyle;
 }
 
-const PrimaryButton: React.FC<PrimaryButtonProps> = ({ title, onPress, disabled = false }) => {
+const PrimaryButton: React.FC<PrimaryButtonProps> = ({ title, onPress, disabled = false, style, textStyle }) => {
   return (
     <TouchableOpacity
-      style={[styles.button, disabled && styles.disabledButton]}
+      style={[styles.button, disabled && styles.disabledButton, style]}
       onPress={onPress}
       disabled={disabled}
     >
-      <Text style={[styles.text, disabled && styles.disabledText]}>{title}</Text>
+      <Text style={[styles.text, disabled && styles.disabledText, textStyle]}>{title}</Text>
     </TouchableOpacity>
   );
 };

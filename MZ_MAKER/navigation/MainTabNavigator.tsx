@@ -3,7 +3,7 @@ import React from 'react';
 import { Feather } from '@expo/vector-icons';
 
 import HomeScreen from '../screens/HomeScreen';
-import ArchiveScreen from '../screens/ArchiveScreen';
+import MemoryArchiveScreen from '../screens/MemoryArchiveScreen';
 import MyPageScreen from '../screens/MyPageScreen';
 import { Colors } from '../constants/Colors';
 import { MainTabParamList } from './types';
@@ -28,7 +28,7 @@ const MainTabNavigator = () => {
       />
       <Tab.Screen
         name="Archive"
-        component={ArchiveScreen}
+        component={MemoryArchiveScreen}
         options={{
           title: '아카이브',
           tabBarIcon: ({ color, size }) => <Feather name="archive" color={color} size={Number(size)} />,

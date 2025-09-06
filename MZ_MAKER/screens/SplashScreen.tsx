@@ -19,7 +19,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: 'red', justifyContent: 'center', alignItems: 'center' },
+  container: { flex: 1, backgroundColor: Colors.white, justifyContent: 'center', alignItems: 'center' },
   title: { fontSize: 32, fontWeight: 'bold', marginBottom: 10 },
   subtitle: { fontSize: 16, color: Colors.darkGray },
 });

@@ -1,7 +1,7 @@
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { Camera, CameraType } from 'expo-camera';
+import { CameraView, useCameraPermissions } from 'expo-camera'; // 변경된 부분
 import * as ImagePicker from 'expo-image-picker';
 import React, { useRef, useState } from 'react';
 import {
@@ -9,26 +9,47 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View,
+    Button,
+    Alert
 } from 'react-native';
 import { RootStackParamList } from '../navigation/types';
 
-// 네비게이션 prop 타입 정의
 type CameraScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Camera'>;
 
 const CameraScreen = () => {
     const navigation = useNavigation<CameraScreenNavigationProp>();
-    const [type, setType] = useState(CameraType.back);
-    const cameraRef = useRef<Camera>(null);
+    const [facing, setFacing] = useState<'back' | 'front'>('back');
+    const [permission, requestPermission] = useCameraPermissions();
+    const cameraRef = useRef<any>(null);
 
-    const toggleCameraType = () => {
-        setType(current => (current === CameraType.back ? CameraType.front : CameraType.back));
+    if (!permission) {
+        // 카메라 권한이 아직 로드되지 않음
+        return <View />;
+    }
+
+    if (!permission.granted) {
+        // 카메라 권한이 아직 부여되지 않음
+        return (
+            <View style={styles.container}>
+                <Text style={{ textAlign: 'center' }}>카메라 권한이 필요합니다</Text>
+                <Button onPress={requestPermission} title="권한 허용" />
+            </View>
+        );
+    }
+
+    const toggleCameraFacing = () => {
+        setFacing(current => (current === 'back' ? 'front' : 'back'));
     };
 
     const takePicture = async () => {
         if (cameraRef.current) {
-            const photo = await cameraRef.current.takePictureAsync();
-            navigation.navigate('PhotoPreview', { imageUri: photo.uri });
+            try {
+                const photo = await cameraRef.current.takePictureAsync();
+                navigation.navigate('PhotoPreview', { imageUri: photo.uri });
+            } catch (error) {
+                Alert.alert('오류', '사진 촬영 중 문제가 발생했습니다.');
+            }
         }
     };
 
@@ -47,19 +68,16 @@ const CameraScreen = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            {/* 헤더 */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Feather name="arrow-left" size={24} color="#000" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>엄마와의 순간을 담아주세요</Text>
-                <View style={{ width: 24 }} />{/* 제목 중앙 정렬용 더미 뷰*/}
+                <View style={{ width: 24 }} />
             </View>
 
-            {/* 카메라 프리뷰 */}
-            <Camera style={styles.camera} type={type} ref={cameraRef} />
+            <CameraView style={styles.camera} facing={facing} ref={cameraRef} />
 
-            {/* 하단 컨트롤 바 */}
             <View style={styles.controlsContainer}>
                 <TouchableOpacity style={styles.controlButton} onPress={pickImage}>
                     <Feather name="image" size={28} color="#000" />
@@ -67,7 +85,7 @@ const CameraScreen = () => {
                 <TouchableOpacity style={styles.shutterButton} onPress={takePicture}>
                     <View style={styles.shutterButtonInner} />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.controlButton} onPress={toggleCameraType}>
+                <TouchableOpacity style={styles.controlButton} onPress={toggleCameraFacing}>
                     <Feather name="refresh-cw" size={28} color="#000" />
                 </TouchableOpacity>
             </View>
@@ -76,7 +94,10 @@ const CameraScreen = () => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#FFFFFF' },
+    container: {
+        flex: 1,
+        backgroundColor: '#FFFFFF'
+    },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',

@@ -29,6 +29,11 @@ export type RootStackParamList = {
   Camera: undefined;
   PhotoPreview: { imageUri: string };
   MemoryForm: { imageUri: string };
+  MyPage: undefined;
+  
+  ImageCrop: { imageUri: string };
+  Result: { croppedImageUri: string };
+  Settings: undefined;
 };
 
 // 각 화면에서 props 타입을 쉽게 사용하기 위해 미리 정의
