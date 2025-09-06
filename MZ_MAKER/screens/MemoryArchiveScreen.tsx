@@ -46,9 +46,6 @@ const MemoryArchiveScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Feather name="chevron-left" size={24} color="black" />
-        </TouchableOpacity>
         <Text style={styles.headerTitle}>엄마랑 꽁냥꽁냥 추억들</Text>
         <View style={{ width: 24 }} />
       </View>

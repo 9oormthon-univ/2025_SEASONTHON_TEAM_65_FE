@@ -1,13 +1,28 @@
 import React, { useState } from 'react';
-import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
-import CustomTextInput from '../components/CustomTextInput';
-import PrimaryButton from '../components/PrimaryButton';
-import { Colors } from '../constants/Colors';
-import { LoginScreenProps } from '../navigation/types';
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { Feather } from '@expo/vector-icons';
+import { StackScreenProps } from '@react-navigation/stack';
+
+import { RootStackParamList } from '../navigation/types'; // Assuming your types are in this file
+
+type LoginScreenProps = StackScreenProps<RootStackParamList, 'Login'>;
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isEmailFocused, setIsEmailFocused] = useState(false);
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
   const handleDebugButtonPress = async () => {
     try {
@@ -23,20 +38,72 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.logoContainer}>
-        <View style={styles.logoBox}><Text style={styles.logo}>MZ- MAKER</Text></View>
-      </View>
-      <View style={styles.formContainer}>
-        <CustomTextInput placeholder="아이디(이메일)" value={email} onChangeText={setEmail} keyboardType="email-address" />
-        <CustomTextInput placeholder="비밀번호" secureTextEntry={true} value={password} onChangeText={setPassword} />
-      </View>
-      <View style={styles.buttonContainer}>
-        <PrimaryButton style={styles.login} textStyle={styles.loginText} title="로그인" onPress={() => navigation.replace('Main')} />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardAvoidingContainer}
+      >
+        <View style={styles.logoContainer}>
+          <Text style={styles.title}>MZ 메이커</Text>
+          <Text style={styles.subtitle}>우리만 알 수 있는 특급 추억 제조기</Text>
+        </View>
 
-        <TouchableOpacity onPress={() => navigation.navigate('SignUpId')}>
-          <Text style={styles.signUpText}>회원가입</Text>
+        <View style={styles.inputContainer}>
+          <View
+            style={[
+              styles.inputWrapper,
+              { borderColor: isEmailFocused ? '#1A2233' : '#E0E0E0' },
+            ]}
+          >
+            <TextInput
+              style={styles.input}
+              placeholder="이메일"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              onFocus={() => setIsEmailFocused(true)}
+              onBlur={() => setIsEmailFocused(false)}
+              placeholderTextColor="#666666"
+            />
+          </View>
+
+          <View
+            style={[
+              styles.inputWrapper,
+              { borderColor: isPasswordFocused ? '#1A2233' : '#E0E0E0' },
+            ]}
+          >
+            <TextInput
+              style={styles.input}
+              placeholder="비밀번호"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+              onFocus={() => setIsPasswordFocused(true)}
+              onBlur={() => setIsPasswordFocused(false)}
+              placeholderTextColor="#666666"
+            />
+            <TouchableOpacity
+              style={styles.icon}
+              onPress={() => setShowPassword(!showPassword)}
+            >
+              <Feather
+                name={showPassword ? 'eye-off' : 'eye'}
+                size={20}
+                color="#666666"
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <TouchableOpacity style={styles.loginButton} onPress={() => navigation.replace('Main')}>
+          <Text style={styles.loginButtonText}>로그인</Text>
         </TouchableOpacity>
-      </View>
+
+        <TouchableOpacity style={styles.signupLink} onPress={() => navigation.navigate('SignUpId')}>
+          <Text style={styles.signupText}>회원가입</Text>
+        </TouchableOpacity>
+      </KeyboardAvoidingView>
       <TouchableOpacity style={styles.debugButton} onPress={handleDebugButtonPress}>
         <Text style={styles.debugButtonText}>Debug</Text>
       </TouchableOpacity>
@@ -45,17 +112,70 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.white, paddingHorizontal: 20, justifyContent: 'space-between' },
-  logoContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  logoBox: { width: 150, height: 150, backgroundColor: Colors.white, justifyContent: 'center', alignItems: 'center' },
-  formContainer: { paddingLeft:10,paddingRight:10, flex: 1, justifyContent: 'flex-start' },
-  buttonContainer: { flex: 1, justifyContent: 'flex-start', alignItems: 'center' },
-  socialButton: { width: '100%', backgroundColor: '#FEE500', padding: 20, borderRadius: 8, alignItems: 'center', marginTop: 10 },
-  socialButtonText: { color: '#000000', fontSize: 16, fontWeight: 'bold' },
-  signUpText: { marginTop: 20, color: Colors.darkGray, textDecorationLine: 'underline' },
-  logo: {fontSize: 32, fontWeight: 'bold', marginBottom: 10 },
-    login:{backgroundColor:'#1A1D29',paddingHorizontal:20,paddingTop:10},
-    loginText: {color: 'white', fontWeight: 'bold'},
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  keyboardAvoidingContainer: {
+    flex: 1,
+    paddingHorizontal: 24,
+    justifyContent: 'center',
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 48, // More space for logo
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#000000',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#666666',
+  },
+  inputContainer: {
+    marginBottom: 16,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  input: {
+    flex: 1,
+    padding: 15,
+    fontSize: 16,
+    color: '#000000',
+  },
+  icon: {
+    padding: 15,
+  },
+  loginButton: {
+    width: '100%',
+    height: 50,
+    backgroundColor: '#1A2233',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  loginButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  signupLink: {
+    alignItems: 'center',
+  },
+  signupText: {
+    color: '#666666',
+    textDecorationLine: 'underline',
+  },
   debugButton: {
     position: 'absolute',
     top: 50,
