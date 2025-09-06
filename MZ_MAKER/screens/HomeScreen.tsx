@@ -48,7 +48,7 @@ const HomeScreen = () => {
 
     const getDateCourses = async () => {
         try {
-            const response = await fetch('http://34.219.249.84:3000/ItDa/api/v1/course');
+            const response = await fetch('http://34.219.249.84:3000/ItDa/api/v1/courses');
             const data = await response.json();
             if (data.result) {
                 setDateCourses(data.courses);

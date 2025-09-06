@@ -10,6 +10,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { useAuth } from '../context/AuthContext';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/types';
 
@@ -23,6 +24,13 @@ type Props = {
 };
 
 const MyPageScreen: React.FC<Props> = ({ navigation }) => {
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigation.replace('Login');
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -37,13 +45,13 @@ const MyPageScreen: React.FC<Props> = ({ navigation }) => {
             source={{ uri: 'https://via.placeholder.com/100' }} // Placeholder for profile image
             style={styles.profileImage}
           />
-          <Text style={styles.username}>리얼젠지</Text>
-          <Text style={styles.joinDate}>2025.09.04 가입</Text>
+          <Text style={styles.username}>{user ? user.userName : 'Guest'}</Text>
+          <Text style={styles.joinDate}>{user ? user.userEmail : ''}</Text>
         </View>
         <View style={styles.menuSection}>
           
-          <TouchableOpacity style={styles.menuItem}>
-            <Text style={styles.menuText}>로그아웃/계정 탈퇴</Text>
+          <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
+            <Text style={styles.menuText}>로그아웃</Text>
             <Feather name="chevron-right" size={24} color="#999" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.menuItem}>

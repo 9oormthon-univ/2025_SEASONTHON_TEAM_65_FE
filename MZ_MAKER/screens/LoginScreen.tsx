@@ -12,12 +12,15 @@ import {
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { StackScreenProps } from '@react-navigation/stack';
+import { useAuth } from '../context/AuthContext';
+
 
 import { RootStackParamList } from '../navigation/types'; // Assuming your types are in this file
 
 type LoginScreenProps = StackScreenProps<RootStackParamList, 'Login'>;
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -39,8 +42,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Login successful:', data);
-        // TODO: Store user data securely (e.g., in AsyncStorage or a state management library)
+        login(data); // Store user data in context
         navigation.replace('Main');
       } else {
         const errorData = await response.json();

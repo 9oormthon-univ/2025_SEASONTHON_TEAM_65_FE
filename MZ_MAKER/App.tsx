@@ -5,6 +5,8 @@ import AppNavigator from './navigation/AppNavigator';
 import * as Font from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 
+import { AuthProvider } from './context/AuthContext';
+
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
@@ -31,8 +33,10 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <AppNavigator />
-    </NavigationContainer>
+    <AuthProvider>
+      <NavigationContainer>
+        <AppNavigator />
+      </NavigationContainer>
+    </AuthProvider>
   );
 }
