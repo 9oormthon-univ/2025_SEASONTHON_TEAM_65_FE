@@ -17,7 +17,9 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.baekhaeun.MZ_MAKER"
+      "package": "com.baekhaeun.MZ_MAKER",
+      "permissions": ["INTERNET", "ACCESS_NETWORK_STATE"],
+      "usesCleartextTraffic": true
     },
     "web": {
       "bundler": "metro",
