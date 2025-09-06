@@ -68,13 +68,15 @@ const MemoryArchiveScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const renderItem = ({ item }: { item: Memory }) => (
-    <View style={styles.itemContainer}>
-      <Image source={{ uri: item.imageUrl }} style={styles.thumbnail} />
-      <View style={styles.itemTextContainer}>
-        <Text style={styles.itemText}>{`추억 ID: ${item.memoryId}`}</Text>
-        <Text style={styles.itemDate}>{`생성일: ${new Date(item.created).toLocaleDateString()}`}</Text>
+    <TouchableOpacity onPress={() => navigation.navigate('Result', { memoryId: item.memoryId })}>
+      <View style={styles.itemContainer}>
+        <Image source={{ uri: item.imageUrl }} style={styles.thumbnail} />
+        <View style={styles.itemTextContainer}>
+          <Text style={styles.itemText}>{`추억 ID: ${item.memoryId}`}</Text>
+          <Text style={styles.itemDate}>{`생성일: ${new Date(item.created).toLocaleDateString()}`}</Text>
+        </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   if (loading) {
