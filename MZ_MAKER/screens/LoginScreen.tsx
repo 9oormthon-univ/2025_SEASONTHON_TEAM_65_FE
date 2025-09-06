@@ -20,43 +20,47 @@ import { RootStackParamList } from '../navigation/types'; // Assuming your types
 type LoginScreenProps = StackScreenProps<RootStackParamList, 'Login'>;
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
-  const { login } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [isEmailFocused, setIsEmailFocused] = useState(false);
-  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+    const { login } = useAuth();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [isEmailFocused, setIsEmailFocused] = useState(false);
+    const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
-  const handleLogin = async () => {
-    try {
-      const response = await fetch('http://34.219.249.84:3000/ItDa/api/v1/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userEmail: email,
-          userPassword: password,
-        }),
-      });
+    const handleLogin = async () => {
+        try {
+            const response = await fetch('http://34.219.249.84:3000/ItDa/api/v1/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userEmail: email,
+                    userPassword: password,
+                }),
+            });
 
-      if (response.ok) {
-        const data = await response.json();
-        login(data); // Store user data in context
-        navigation.replace('Main');
-      } else {
-        const errorData = await response.json();
-        Alert.alert('Login Failed', errorData.message || 'Invalid email or password');
-      }
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
-    }
-  };
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log('Login response:', data);
+
+                // AuthContext에 사용자 정보 저장
+                await login(data);
+
+                navigation.replace('Main');
+            } else {
+                Alert.alert('로그인 실패', data.message || '이메일 또는 비밀번호가 올바르지 않습니다.');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            Alert.alert('오류', '로그인 중 문제가 발생했습니다. 다시 시도해주세요.');
+        }
+    };
 
   const handleDebugButtonPress = async () => {
     try {
-      const response = await fetch('http://34.219.249.84:3000/ItDa/api/v1/ping');
+      const response = await fetch('http://34.219.249.84:3000/ItDa/api/v1/users');
       const data = await response.json();
       console.log(data);
       Alert.alert('API Response', JSON.stringify(data, null, 2));
@@ -134,7 +138,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
           <Text style={styles.signupText}>회원가입</Text>
         </TouchableOpacity>
       </KeyboardAvoidingView>
-      
+
       <TouchableOpacity style={styles.debugButton} onPress={handleDebugButtonPress}>
         <Text style={styles.debugButtonText}>Debug</Text>
       </TouchableOpacity>

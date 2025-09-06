@@ -51,7 +51,14 @@ const HomeScreen = () => {
             const response = await fetch('http://34.219.249.84:3000/ItDa/api/v1/courses');
             const data = await response.json();
             if (data.result) {
-                setDateCourses(data.courses);
+                const filteredCourses = data.courses.filter(course => course.courseId >= 1 && course.courseId <= 5);
+                const mappedCourses = filteredCourses.map(course => ({
+                    id: course.courseId,
+                    title: course.courseTitle,
+                    subtitle: course.courseDescription,
+                    course_image_url: course.courseImageUrl,
+                }));
+                setDateCourses(mappedCourses);
             } else {
                 Alert.alert('Error', data.error.join('\n'));
             }

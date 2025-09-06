@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import PrimaryButton from '../components/PrimaryButton';
 import { RootStackParamList } from '../navigation/types';
+import { useAuth } from '../context/AuthContext';
 
 type ResultScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Result'>;
 type ResultScreenRouteProp = RouteProp<RootStackParamList, 'Result'>;
@@ -27,6 +28,7 @@ type Props = {
 
 const ResultScreen: React.FC<Props> = ({ route, navigation }) => {
   const { croppedImageUri, memoryId } = route.params;
+  const { user } = useAuth(); // Get user from context
 
   const [mothersQuote, setMothersQuote] = useState('');
   const [myFeeling, setMyFeeling] = useState('');
@@ -65,21 +67,44 @@ const ResultScreen: React.FC<Props> = ({ route, navigation }) => {
   };
 
   const handleSave = async () => {
-    const requestBody = {
-        courseId: 1, // Placeholder
-        userId: 'temp_user_id', // Placeholder
-        imageUrl: imageUri, // Placeholder, needs real upload
-        mothersQuote: mothersQuote,
-        activityDate: new Date().toISOString().split('T')[0].replace(/-/g, '.'),
-        myFeeling: myFeeling,
-    };
+    if (!user || !user.userId) {
+        Alert.alert('오류', '로그인 정보가 없습니다. 다시 로그인해주세요.');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('courseId', '1'); // Placeholder, needs to come from somewhere
+    formData.append('mothersQuote', mothersQuote);
+    formData.append('activityDate', new Date().toISOString().split('T')[0].replace(/-/g, '.'));
+    formData.append('myFeeling', myFeeling);
+
+    // Append image file
+    if (imageUri) {
+        const filename = imageUri.split('/').pop();
+        const match = /\.(\w+)$/.exec(filename);
+        const type = match ? `image/${match[1]}` : `image`;
+
+        // For web, imageUri might be a data URL or blob URL, not a file path.
+        // React Native's fetch handles local file URIs automatically for native.
+        // For web, you might need to convert data URL to Blob first if not already.
+        // For simplicity, assuming imageUri is a file path for native or a Blob/File for web.
+        formData.append('image', {
+            uri: imageUri,
+            name: filename,
+            type,
+        } as any); // Type assertion for FormData.append
+    } else {
+        Alert.alert('오류', '이미지 파일이 없습니다.');
+        return;
+    }
 
     try {
-        const response = await fetch('http://34.219.249.84:3000/ItDa/api/v1/memories', {
+        const response = await fetch(`http://34.219.249.84:3000/ItDa/api/v1/memory/${user.userId}`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(requestBody),
+            body: formData,
+            // headers: { 'Content-Type': 'multipart/form-data' } - fetch sets this automatically
         });
+
         if (response.ok) {
             Alert.alert('성공', '추억이 성공적으로 저장되었습니다.', [
                 { text: 'OK', onPress: () => navigation.popToTop() },
@@ -89,7 +114,8 @@ const ResultScreen: React.FC<Props> = ({ route, navigation }) => {
             Alert.alert('저장 실패', errorData.message || '서버에 저장 중 오류 발생');
         }
     } catch (error) {
-        Alert.alert('오류', '네트워크 오류가 발생했습니다.');
+        console.error(error);
+        Alert.alert('오류', '네트워크 오류가 발생했습니다. 다시 시도해주세요.');
     }
   };
 

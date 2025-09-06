@@ -55,11 +55,7 @@ const CourseDetailScreen = () => {
 
     const fetchCourseDetails = async (courseId: number) => {
         try {
-            const response = await fetch('http://34.219.249.84:3000/ItDa/api/v1/courses/detail', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ courseId }),
-            });
+            const response = await fetch(`http://34.219.249.84:3000/ItDa/api/v1/course/${courseId}`);
 
             if (response.ok) {
                 const data = await response.json();
