@@ -16,6 +16,7 @@ import {
     ActivityIndicator
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import ImageResizer from 'react-native-image-resizer';
 import { RootStackParamList } from '../navigation/types';
 import { useAuth } from '../context/AuthContext';
 
@@ -34,20 +35,47 @@ const MemoryFormScreen = () => {
 
     const isButtonDisabled = !momSaid || !iFelt || loading;
 
-    const handleSave = async () => {
-        // 하드코딩된 userId 사용
-        const userId = 6;
+    // 이미지 압축 함수
+    const compressImage = async (uri: string) => {
+        try {
+            console.log('Original image URI:', uri);
 
+            const response = await ImageResizer.createResizedImage(
+                uri,
+                800,  // maxWidth
+                800,  // maxHeight
+                'JPEG', // 형식
+                80,     // 품질 (0-100)
+                0,      // 회전
+                undefined, // 출력 디렉토리 (기본값 사용)
+                false, // keepMeta
+            );
+
+            console.log('Compressed image:', response);
+            return response.uri;
+        } catch (error) {
+            console.error('Image compression error:', error);
+            // 압축 실패시 원본 반환
+            return uri;
+        }
+    };
+
+    const handleSave = async () => {
+        const userId = 6;
         console.log('Using hardcoded userId:', userId);
 
         setLoading(true);
 
         try {
+            // 이미지 압축
+            const compressedUri = await compressImage(imageUri);
+            console.log('Using compressed image:', compressedUri);
+
             const formData = new FormData();
 
-            let processedUri = imageUri;
-            if (Platform.OS === 'android' && !imageUri.startsWith('file://')) {
-                processedUri = 'file://' + imageUri;
+            let processedUri = compressedUri;
+            if (Platform.OS === 'android' && !compressedUri.startsWith('file://')) {
+                processedUri = 'file://' + compressedUri;
             }
 
             formData.append('image', {
@@ -165,7 +193,10 @@ const MemoryFormScreen = () => {
                         disabled={isButtonDisabled}
                     >
                         {loading ? (
-                            <ActivityIndicator color="#FFFFFF" />
+                            <View style={styles.loadingContainer}>
+                                <ActivityIndicator color="#FFFFFF" />
+                                <Text style={styles.loadingText}>업로드 중...</Text>
+                            </View>
                         ) : (
                             <Text style={styles.saveButtonText}>추억 저장하기</Text>
                         )}
@@ -176,7 +207,6 @@ const MemoryFormScreen = () => {
     );
 };
 
-// styles 객체가 컴포넌트 밖에 정의되어 있는지 확인
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -246,7 +276,15 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
     },
+    loadingContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    loadingText: {
+        color: '#FFFFFF',
+        marginLeft: 8,
+        fontSize: 16,
+    },
 });
 
-// export default가 맨 마지막에 있는지 확인
 export default MemoryFormScreen;
