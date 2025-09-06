@@ -24,6 +24,34 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [isEmailFocused, setIsEmailFocused] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
+  const handleLogin = async () => {
+    try {
+      const response = await fetch('http://34.219.249.84:3000/ItDa/api/v1/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userEmail: email,
+          userPassword: password,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Login successful:', data);
+        // TODO: Store user data securely (e.g., in AsyncStorage or a state management library)
+        navigation.replace('Main');
+      } else {
+        const errorData = await response.json();
+        Alert.alert('Login Failed', errorData.message || 'Invalid email or password');
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    }
+  };
+
   const handleDebugButtonPress = async () => {
     try {
       const response = await fetch('http://34.219.249.84:3000/ItDa/api/v1/ping');
@@ -96,7 +124,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.loginButton} onPress={() => navigation.replace('Main')}>
+        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
           <Text style={styles.loginButtonText}>로그인</Text>
         </TouchableOpacity>
 
@@ -104,6 +132,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
           <Text style={styles.signupText}>회원가입</Text>
         </TouchableOpacity>
       </KeyboardAvoidingView>
+      
       <TouchableOpacity style={styles.debugButton} onPress={handleDebugButtonPress}>
         <Text style={styles.debugButtonText}>Debug</Text>
       </TouchableOpacity>
@@ -123,7 +152,7 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 48, // More space for logo
+    marginBottom: 48,
   },
   title: {
     fontSize: 24,

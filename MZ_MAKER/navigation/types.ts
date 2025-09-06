@@ -4,6 +4,7 @@ import type { StackScreenProps } from '@react-navigation/stack';
 // 공용 타입
 export type DateCourse = {
   id: string;
+  course_image_url: string;
   title: string;
   subtitle: string;
 };

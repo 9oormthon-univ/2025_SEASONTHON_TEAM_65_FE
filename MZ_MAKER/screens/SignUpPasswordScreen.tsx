@@ -9,7 +9,8 @@ const ValidationText: React.FC<{ isValid: boolean; text: string }> = ({ isValid,
     <Text style={{ color: isValid ? 'green' : 'red' }}>{text}</Text>
 );
 
-const SignUpPasswordScreen: React.FC<SignUpPasswordScreenProps> = ({ navigation }) => {
+const SignUpPasswordScreen: React.FC<SignUpPasswordScreenProps> = ({ navigation, route }) => {
+    const { userEmail } = route.params;
     const [password, setPassword] = useState('');
     const [passwordConfirm, setPasswordConfirm] = useState('');
 
@@ -22,6 +23,13 @@ const SignUpPasswordScreen: React.FC<SignUpPasswordScreenProps> = ({ navigation 
     }, [password, passwordConfirm]);
 
     const isButtonDisabled = !Object.values(validation).every(Boolean);
+
+    const handleNextPress = () => {
+        navigation.navigate('SignUpName', { 
+            userEmail,
+            userPassword: password 
+        });
+    };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -57,7 +65,7 @@ const SignUpPasswordScreen: React.FC<SignUpPasswordScreenProps> = ({ navigation 
                 <View style={styles.bottom}>
                     <PrimaryButton
                         title="다음"
-                        onPress={() => navigation.navigate('SignUpName')}
+                        onPress={handleNextPress}
                         disabled={isButtonDisabled}
                     />
                 </View>

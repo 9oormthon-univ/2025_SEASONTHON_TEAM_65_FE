@@ -1,5 +1,5 @@
 import { Feather } from '@expo/vector-icons';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     FlatList,
     SafeAreaView,
@@ -7,7 +7,9 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View,
+    Alert,
+    Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -21,14 +23,6 @@ type ContentCardProps = {
 // RootStack의 네비게이션 prop 타입 정의
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'CourseDetail'>;
 
-// --- 2. 목업 데이터 ---
-const dateCourses: DateCourse[] = [
-    { id: '1', title: '홍대 플리마켓 & 맛집 탐방', subtitle: '젊음이 가득한 홍대에서의 특별한 하루' },
-    { id: '2', title: '성수동 감성 카페 투어', subtitle: '힙한 성수동에서 즐기는 모녀 카페 투어' },
-    { id: '3', title: '이태원 글로벌 푸드 투어', subtitle: '세계 각국의 맛을 함께 즐겨요' },
-    { id: '4', title: '경복궁 한복 데이트', subtitle: '고궁의 아름다움을 배경으로 인생샷 남기기' },
-];
-
 // --- 3. 하위 컴포넌트 ---
 
 // 콘텐츠 카드 컴포넌트
@@ -38,9 +32,7 @@ const ContentCard: React.FC<ContentCardProps> = ({ item }) => {
         // CourseDetail 스크린으로 이동하며 item 전체를 파라미터로 전달
         <TouchableOpacity onPress={() => navigation.navigate('CourseDetail', { course: item })}>
             <View style={styles.cardContainer}>
-                <View style={styles.imagePlaceholder}>
-                    <Feather name="image" size={40} color="#999" />
-                </View>
+                <Image source={{ uri: item.course_image_url }} style={styles.imagePlaceholder} />
                 <View style={styles.cardTextContainer}>
                     <Text style={styles.cardTitle}>{item.title}</Text>
                     <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
@@ -52,6 +44,27 @@ const ContentCard: React.FC<ContentCardProps> = ({ item }) => {
 
 // --- 4. 메인 홈 화면 컴포넌트 ---
 const HomeScreen = () => {
+    const [dateCourses, setDateCourses] = useState<DateCourse[]>([]);
+
+    const getDateCourses = async () => {
+        try {
+            const response = await fetch('http://34.219.249.84:3000/ItDa/api/v1/course');
+            const data = await response.json();
+            if (data.result) {
+                setDateCourses(data.courses);
+            } else {
+                Alert.alert('Error', data.error.join('\n'));
+            }
+        } catch (error) {
+            console.error(error);
+            Alert.alert('Error', 'Failed to fetch date courses from API');
+        }
+    };
+
+    useEffect(() => {
+        getDateCourses();
+    }, []);
+
     return (
         <SafeAreaView style={styles.safeArea}>
             <StatusBar barStyle="dark-content" />
